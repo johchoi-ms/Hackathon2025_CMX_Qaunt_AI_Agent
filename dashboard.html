@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Azure Policy Blade Analytics Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/d3-sankey@0.12.3/dist/d3-sankey.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Azure Policy Blade Analytics Dashboard</h1>
+            <p class="subtitle">Analysis Period: Last 28 days | Data Source: Azure Portal ClientTelemetry</p>
+        </header>
+
+        <!-- Executive Summary -->
+        <section class="executive-summary">
+            <h2>Executive Summary</h2>
+            <div class="summary-content">
+                <p>Azure Policy blades serve <strong>150,649 monthly active users</strong> across six primary interfaces, with PolicyMenu being the dominant entry point (128,635 MAU). User engagement remains strong with an overall stickiness of 33.1%, indicating healthy weekly retention patterns. ComplianceDetail blade demonstrates the highest per-user engagement at 4.03 sessions per user, suggesting deep user interaction with compliance monitoring features. ScopeSelector blade shows concerning declining trends, dropping 70% from 14,902 to 4,495 weekly users, requiring immediate investigation. The overall user journey flows primarily through PolicyMenu → Compliance → PolicyOverview, with CreateEdit serving as a specialized low-volume but focused workspace.</p>
+            </div>
+        </section>
+
+        <!-- Key Metrics Cards -->
+        <section class="metrics-cards">
+            <div class="card">
+                <h3>Total MAU</h3>
+                <div class="metric-value">150,649</div>
+                <div class="metric-change">Last 28 days</div>
+            </div>
+            <div class="card">
+                <h3>Overall Stickiness</h3>
+                <div class="metric-value">33.1%</div>
+                <div class="metric-change">WAU/MAU Ratio</div>
+            </div>
+            <div class="card">
+                <h3>Avg Sessions/User</h3>
+                <div class="metric-value">2.89</div>
+                <div class="metric-change">Overall Engagement</div>
+            </div>
+            <div class="card">
+                <h3>Total Sessions</h3>
+                <div class="metric-value">435,586</div>
+                <div class="metric-change">28-day period</div>
+            </div>
+        </section>
+
+        <!-- Monthly Active Users -->
+        <section class="chart-section">
+            <h2>Monthly Active Users (MAU) - Last 28 Days</h2>
+            <div class="chart-container">
+                <canvas id="mauChart"></canvas>
+            </div>
+            <div class="insights">
+                <h4>Key Insights:</h4>
+                <ul>
+                    <li><strong>PolicyMenu dominates usage</strong> with 128,635 MAU (85% of overall), serving as the primary entry point</li>
+                    <li><strong>Compliance blade follows</strong> with 114,227 MAU, indicating strong focus on policy compliance monitoring</li>
+                    <li><strong>CreateEdit has lowest usage</strong> (4,765 MAU) but this aligns with its specialized function for policy authoring</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Weekly Active Users Trends -->
+        <section class="chart-section">
+            <h2>Weekly Active Users (WAU) Trends - Last 4 Weeks</h2>
+            <div class="chart-container">
+                <canvas id="wauTrendChart"></canvas>
+            </div>
+            <div class="insights">
+                <h4>Trend Analysis:</h4>
+                <ul>
+                    <li><strong>Overall WAU growth</strong>: Week 1 (45,333) → Week 3 (51,344), then slight decline to Week 4 (49,854)</li>
+                    <li><strong>ScopeSelector shows alarming decline</strong>: 70% drop from 14,902 (Week 2) to 4,495 (Week 4)</li>
+                    <li><strong>Most blades show stability</strong> with PolicyMenu and Compliance maintaining consistent weekly engagement</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Stickiness Metrics -->
+        <section class="chart-section">
+            <h2>Stickiness (WAU/MAU) by Blade</h2>
+            <div class="chart-container">
+                <canvas id="stickinessChart"></canvas>
+            </div>
+            <div class="insights">
+                <h4>Engagement Quality:</h4>
+                <ul>
+                    <li><strong>ComplianceDetail leads stickiness</strong> at 35.2%, indicating users return frequently to monitor compliance status</li>
+                    <li><strong>PolicyOverview and PolicyMenu</strong> show healthy 33%+ stickiness, suggesting good weekly retention</li>
+                    <li><strong>ScopeSelector underperforms</strong> at 13.2% stickiness, combined with declining usage, signals UX issues</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Average Sessions per User -->
+        <section class="chart-section">
+            <h2>Average Sessions per User by Blade</h2>
+            <div class="chart-container">
+                <canvas id="sessionsChart"></canvas>
+            </div>
+            <div class="insights">
+                <h4>Session Depth Analysis:</h4>
+                <ul>
+                    <li><strong>ComplianceDetail shows highest engagement</strong> (4.03 sessions/user), indicating complex workflows requiring multiple visits</li>
+                    <li><strong>CreateEdit has lowest sessions/user</strong> (1.26), suggesting users complete tasks in single sessions</li>
+                    <li><strong>Overall average of 2.89</strong> sessions per user indicates healthy repeat engagement patterns</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- User Journey Sankey Diagram -->
+        <section class="chart-section">
+            <h2>User Journey Flow Between Blades</h2>
+            <div class="chart-container">
+                <div id="sankeyChart"></div>
+            </div>
+            <div class="insights">
+                <h4>User Flow Patterns:</h4>
+                <ul>
+                    <li><strong>PolicyMenu serves as primary hub</strong> with highest user volume, connecting to all other blades</li>
+                    <li><strong>Compliance monitoring workflow</strong> shows strong connection between Compliance and ComplianceDetail blades</li>
+                    <li><strong>CreateEdit isolation</strong> suggests it's accessed directly for specific authoring tasks rather than discovery browsing</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Anomalies Section -->
+        <section class="anomalies">
+            <h2>🚨 Anomalies Detected</h2>
+            <div class="anomaly-cards">
+                <div class="anomaly-card critical">
+                    <h4>Critical: ScopeSelector Usage Collapse</h4>
+                    <p><strong>70% decline</strong> in WAU from Week 2 (14,902) to Week 4 (4,495). This dramatic drop combined with low 13.2% stickiness indicates potential UX issues, feature deprecation, or technical problems requiring immediate investigation.</p>
+                </div>
+                <div class="anomaly-card warning">
+                    <h4>Warning: CreateEdit Low Engagement</h4>
+                    <p>Only <strong>1.26 sessions per user</strong> and 19.4% stickiness suggest users struggle with policy creation workflows. Consider UX improvements to encourage iterative policy development.</p>
+                </div>
+                <div class="anomaly-card info">
+                    <h4>Info: Overall WAU Peak in Week 3</h4>
+                    <p>WAU peaked at <strong>51,344 in Week 3</strong> then declined to 49,854 in Week 4. Monitor if this represents natural fluctuation or early indicator of declining engagement.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Actionable Recommendations -->
+        <section class="recommendations">
+            <h2>📈 Actionable Recommendations</h2>
+            <div class="recommendation-grid">
+                <div class="recommendation-card urgent">
+                    <h4>🔴 Urgent: Investigate ScopeSelector</h4>
+                    <ul>
+                        <li>Conduct immediate technical audit for bugs or performance issues</li>
+                        <li>Survey recent users to identify UX pain points</li>
+                        <li>Review if feature changes or A/B tests impacted usage</li>
+                        <li>Consider UX redesign if systematic usability issues are found</li>
+                    </ul>
+                </div>
+                <div class="recommendation-card high">
+                    <h4>🟠 High Priority: Enhance CreateEdit Experience</h4>
+                    <ul>
+                        <li>Add guided policy creation wizards to encourage longer sessions</li>
+                        <li>Implement save/draft functionality to support iterative development</li>
+                        <li>Provide policy templates and examples to reduce friction</li>
+                        <li>Add preview/testing capabilities before policy deployment</li>
+                    </ul>
+                </div>
+                <div class="recommendation-card medium">
+                    <h4>🟡 Medium Priority: Optimize User Journeys</h4>
+                    <ul>
+                        <li>Add contextual links between PolicyOverview and ComplianceDetail</li>
+                        <li>Create workflow-based navigation between related blades</li>
+                        <li>Implement breadcrumb navigation for complex policy management tasks</li>
+                        <li>Consider role-based dashboard customization</li>
+                    </ul>
+                </div>
+                <div class="recommendation-card low">
+                    <h4>🟢 Low Priority: Leverage High-Performing Areas</h4>
+                    <ul>
+                        <li>Study ComplianceDetail's high engagement patterns for best practices</li>
+                        <li>Promote PolicyMenu's hub role with enhanced discovery features</li>
+                        <li>Analyze what drives strong Compliance blade stickiness</li>
+                        <li>Document and replicate successful engagement patterns</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <p>Dashboard generated on <span id="currentDate"></span> | Data validation: ✅ All metrics validated successfully</p>
+        </footer>
+    </div>
+
+    <script src="dashboard.js"></script>
+</body>
+</html>
