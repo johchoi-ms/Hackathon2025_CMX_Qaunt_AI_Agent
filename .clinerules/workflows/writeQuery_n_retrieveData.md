@@ -1,18 +1,21 @@
-## Pre
+### Pre
 - Ask for list of Blades to be included.
 - Ask for the name of the final json file.
 
 ### Goal
 - Save Kusto queries and result data to the json file.
-- Create a JSON file to store queries and retrieved data.
 
 ### Data Source
 cluster('azportalpartnerrow.westus.kusto.windows.net').database('AzurePortal').ClientTelemetry 
+
+### Key Fields
+- PreciseTimeStamp, name, action, actionModifier, data, userTypeHint, requestUri, tenantId, sessionId, tenantId, userId
 
 ### Time range: 
 | where PreciseTimeStamp >= ago(28d)
 
 ### Blade scope: 
+| where action == "BladeFullReady"
 | where name in ( "bladeName1", "bladeName2") 
 
 ### External users only:
@@ -27,7 +30,7 @@ cluster('azportalpartnerrow.westus.kusto.windows.net').database('AzurePortal').C
 - Dashboard must be product-agnostic (generic across Azure blades/features).
 
 
-## Metrics to Implement
+### Metrics to Implement
 - Monthly Active Users (MAU) per blade and overall (last 28 days)
 - Weekly Active Users (WAU) per blade and overall
     - trend of last 4 weeks, starting from ago(28d)
@@ -35,3 +38,17 @@ cluster('azportalpartnerrow.westus.kusto.windows.net').database('AzurePortal').C
 - Average Sessions per User (per blade and overall)
 - User journey between blades
     - I will build Sankey graph that you can see from this (https://d3-graph-gallery.com/sankey). Prepare the data as needed
+- Session Frequency: avg number of active days per user in 28d
+- Top Tenant (Power Users): share of activity by top X% (X configurable, default 10%)
+- Cross-Blade Engagement: avg distinct blades per user
+- Top blades by loads and users. (for multi blades analysis only)
+- Repeat Visitors: % users with ≥3 visits in 28d
+- First-time Users (New this Month): users first seen within last 28d
+- Day-of-Week Engagement: active users by weekday
+- Peak Hours Usage: sessions by hour of day
+
+
+## Now Excuet:
+- Connect via AZURE-MCP-SERVER
+- Run kusto queries
+- save Kusto queries and result data to the json file.
