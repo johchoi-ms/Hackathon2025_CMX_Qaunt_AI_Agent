@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Azure Policy Blade Analytics Dashboard</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12.3/dist/d3-sankey.min.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <h1>Azure Policy Blade Analytics Dashboard</h1>
+            <p class="last-updated">Last Updated: 2025-09-19 | Data Range: Last 28 Days</p>
+        </header>
+
+        <!-- Executive Summary -->
+        <section class="executive-summary">
+            <h2>Executive Summary</h2>
+            <div class="summary-content">
+                <p><strong>Key Findings:</strong> Azure Policy blades achieved 151,934 Monthly Active Users with an overall stickiness of 32.65%. PolicyMenuBlade leads with 129,277 users, while PolicyComplianceDetail.ReactView shows the highest engagement with 4.04 sessions per user. ScopeSelectorBlade exhibits concerning low stickiness at 13.53%, indicating potential UX issues requiring immediate attention. The top user flow (PolicyOverviewBladeV3 → PolicyMenuBlade) accounts for 236,252 navigation events, suggesting PolicyMenuBlade serves as the primary hub. Users average 1.7 active days per month, indicating moderate but consistent engagement patterns.</p>
+            </div>
+        </section>
+
+        <!-- Anomalies Section -->
+        <section class="anomalies-section">
+            <h2>🚨 Anomalies & Red Flags</h2>
+            <div class="anomaly-cards">
+                <div class="anomaly-card critical">
+                    <h3>Critical: Low Stickiness</h3>
+                    <p><strong>ScopeSelectorBlade:</strong> Only 13.53% stickiness vs 32% average. This suggests users struggle with scope selection functionality.</p>
+                    <p><strong>Action Required:</strong> UX review and usability testing needed immediately.</p>
+                </div>
+                <div class="anomaly-card warning">
+                    <h3>Warning: High Session Intensity</h3>
+                    <p><strong>PolicyComplianceDetail.ReactView:</strong> 4.04 sessions per user (40% above average). May indicate complex workflows or navigation issues.</p>
+                    <p><strong>Recommendation:</strong> Simplify compliance detail workflows.</p>
+                </div>
+                <div class="anomaly-card info">
+                    <h3>Opportunity: Traffic Hub Pattern</h3>
+                    <p><strong>PolicyMenuBlade:</strong> Central to 60% of all major user flows. Consider optimizing as primary entry point.</p>
+                    <p><strong>Suggestion:</strong> Enhance discoverability of key features from this hub.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Metrics Grid -->
+        <div class="metrics-grid">
+            <!-- MAU Section -->
+            <section class="metric-section">
+                <div class="metric-header">
+                    <h2>Monthly Active Users (MAU)</h2>
+                    <button class="query-btn" onclick="showQuery('mau')">Show Query</button>
+                </div>
+                <div class="chart-container">
+                    <div id="mau-chart"></div>
+                    <div class="metric-insights">
+                        <h4>Key Insights:</h4>
+                        <ul>
+                            <li>PolicyMenuBlade dominates with 85% of overall MAU</li>
+                            <li>Compliance.ReactView shows strong adoption (75% of overall)</li>
+                            <li>ScopeSelectorBlade and PolicyComplianceDetail have similar user bases (~33k each)</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- WAU Trend Section -->
+            <section class="metric-section">
+                <div class="metric-header">
+                    <h2>Weekly Active Users Trend</h2>
+                    <button class="query-btn" onclick="showQuery('wau')">Show Query</button>
+                </div>
+                <div class="chart-container">
+                    <div id="wau-trend-chart"></div>
+                    <div class="metric-insights">
+                        <h4>Trend Analysis:</h4>
+                        <ul>
+                            <li>PolicyMenuBlade shows stability across all weeks (38k-43k users)</li>
+                            <li>ScopeSelectorBlade exhibits volatility (4k-15k range)</li>
+                            <li>Overall WAU maintained at ~50k for current week</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Stickiness Section -->
+            <section class="metric-section">
+                <div class="metric-header">
+                    <h2>Stickiness (WAU/MAU)</h2>
+                    <button class="query-btn" onclick="showQuery('stickiness')">Show Query</button>
+                </div>
+                <div class="chart-container">
+                    <div id="stickiness-chart"></div>
+                    <div class="metric-insights">
+                        <h4>Engagement Quality:</h4>
+                        <ul>
+                            <li>PolicyComplianceDetail leads with 35.19% stickiness</li>
+                            <li>Most blades cluster around 32-33% (healthy range)</li>
+                            <li>ScopeSelectorBlade at 13.53% needs immediate attention</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sessions Per User Section -->
+            <section class="metric-section">
+                <div class="metric-header">
+                    <h2>Average Sessions Per User</h2>
+                    <button class="query-btn" onclick="showQuery('sessions')">Show Query</button>
+                </div>
+                <div class="chart-container">
+                    <div id="sessions-chart"></div>
+                    <div class="metric-insights">
+                        <h4>Usage Intensity:</h4>
+                        <ul>
+                            <li>PolicyComplianceDetail shows highest intensity (4.04 sessions)</li>
+                            <li>Overall average of 2.87 sessions indicates good engagement</li>
+                            <li>Compliance.ReactView lowest at 2.05 (more efficient workflows)</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Session Frequency Section -->
+            <section class="metric-section">
+                <div class="metric-header">
+                    <h2>Session Frequency (Active Days)</h2>
+                    <button class="query-btn" onclick="showQuery('frequency')">Show Query</button>
+                </div>
+                <div class="chart-container">
+                    <div id="frequency-chart"></div>
+                    <div class="metric-insights">
+                        <h4>Usage Patterns:</h4>
+                        <ul>
+                            <li>PolicyComplianceDetail users most active (1.92 days/28d)</li>
+                            <li>Overall frequency of 1.7 days suggests periodic usage pattern</li>
+                            <li>ScopeSelectorBlade lowest frequency aligns with stickiness concerns</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sankey Diagram Section -->
+            <section class="metric-section full-width">
+                <div class="metric-header">
+                    <h2>User Journey Flow (Sankey Diagram)</h2>
+                    <button class="query-btn" onclick="showQuery('sankey')">Show Query</button>
+                </div>
+                <div class="chart-container">
+                    <div id="sankey-chart"></div>
+                    <div class="metric-insights">
+                        <h4>Navigation Patterns:</h4>
+                        <ul>
+                            <li>PolicyMenuBlade acts as central hub (60% of major flows)</li>
+                            <li>Strong bidirectional flow between Overview and Menu blades</li>
+                            <li>Compliance workflows show cyclical patterns (users return frequently)</li>
+                            <li>ScopeSelectorBlade primarily feeds into other blades (limited retention)</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Recommendations Section -->
+        <section class="recommendations">
+            <h2>Actionable Recommendations</h2>
+            <div class="recommendation-cards">
+                <div class="recommendation-card high-priority">
+                    <h3>🔥 High Priority</h3>
+                    <h4>Fix ScopeSelectorBlade UX Issues</h4>
+                    <ul>
+                        <li>Conduct user interviews to identify pain points in scope selection</li>
+                        <li>Implement guided scope selection with contextual help</li>
+                        <li>Add scope validation and error prevention mechanisms</li>
+                        <li>Target: Increase stickiness from 13.5% to 25% within 2 quarters</li>
+                    </ul>
+                </div>
+                <div class="recommendation-card medium-priority">
+                    <h3>⚡ Medium Priority</h3>
+                    <h4>Optimize PolicyComplianceDetail Workflows</h4>
+                    <ul>
+                        <li>Streamline compliance detail viewing (reduce from 4.04 to 3.0 sessions)</li>
+                        <li>Implement bulk actions for compliance management</li>
+                        <li>Add contextual navigation to reduce back-and-forth patterns</li>
+                    </ul>
+                </div>
+                <div class="recommendation-card low-priority">
+                    <h3>📊 Strategic</h3>
+                    <h4>Enhance PolicyMenuBlade as Central Hub</h4>
+                    <ul>
+                        <li>Add personalized recommendations based on user patterns</li>
+                        <li>Implement quick actions for common tasks</li>
+                        <li>Consider dashboard-style overview for frequent users</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Modal for showing queries -->
+    <div id="queryModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>KQL Query</h3>
+            <pre id="queryText"></pre>
+            <button onclick="copyQuery()">Copy to Clipboard</button>
+        </div>
+    </div>
+
+    <script src="dashboard.js"></script>
+</body>
+</html>

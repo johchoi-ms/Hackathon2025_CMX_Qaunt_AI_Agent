@@ -1,0 +1,486 @@
+/* Dashboard CSS Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f5f7fa;
+    color: #333;
+    line-height: 1.6;
+}
+
+.dashboard-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Header Styles */
+.dashboard-header {
+    background: linear-gradient(135deg, #0078d4, #106ebe);
+    color: white;
+    padding: 30px;
+    border-radius: 12px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 15px rgba(0, 120, 212, 0.2);
+}
+
+.dashboard-header h1 {
+    font-size: 2.5em;
+    margin-bottom: 10px;
+    font-weight: 300;
+}
+
+.last-updated {
+    font-size: 1.1em;
+    opacity: 0.9;
+}
+
+/* Executive Summary */
+.executive-summary {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid #0078d4;
+}
+
+.executive-summary h2 {
+    color: #0078d4;
+    margin-bottom: 15px;
+    font-size: 1.8em;
+}
+
+.summary-content p {
+    font-size: 1.1em;
+    line-height: 1.7;
+}
+
+/* Anomalies Section */
+.anomalies-section {
+    margin-bottom: 30px;
+}
+
+.anomalies-section h2 {
+    color: #d13438;
+    margin-bottom: 20px;
+    font-size: 1.8em;
+}
+
+.anomaly-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 20px;
+}
+
+.anomaly-card {
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.anomaly-card.critical {
+    background: linear-gradient(135deg, #d13438, #e94043);
+    color: white;
+}
+
+.anomaly-card.warning {
+    background: linear-gradient(135deg, #ff8c00, #ffa500);
+    color: white;
+}
+
+.anomaly-card.info {
+    background: linear-gradient(135deg, #0078d4, #106ebe);
+    color: white;
+}
+
+.anomaly-card h3 {
+    margin-bottom: 10px;
+    font-size: 1.2em;
+}
+
+.anomaly-card p {
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+
+/* Metrics Grid */
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+    gap: 25px;
+    margin-bottom: 30px;
+}
+
+.metric-section {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.metric-section:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.metric-section.full-width {
+    grid-column: 1 / -1;
+}
+
+.metric-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 15px;
+}
+
+.metric-header h2 {
+    color: #0078d4;
+    font-size: 1.5em;
+}
+
+.query-btn {
+    background: #0078d4;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background 0.2s ease;
+}
+
+.query-btn:hover {
+    background: #106ebe;
+}
+
+.chart-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.metric-insights {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 3px solid #0078d4;
+}
+
+.metric-insights h4 {
+    color: #0078d4;
+    margin-bottom: 10px;
+}
+
+.metric-insights ul {
+    padding-left: 20px;
+}
+
+.metric-insights li {
+    margin-bottom: 5px;
+    color: #555;
+}
+
+/* Chart Styles */
+.chart-svg {
+    width: 100%;
+    height: 400px;
+    background: white;
+    border-radius: 8px;
+}
+
+#sankey-chart .chart-svg {
+    height: 600px;
+}
+
+/* Bar Chart Styles */
+.bar {
+    transition: fill 0.2s ease;
+}
+
+.bar:hover {
+    opacity: 0.8;
+}
+
+.axis text {
+    font-size: 12px;
+    fill: #666;
+}
+
+.axis path,
+.axis line {
+    fill: none;
+    stroke: #ddd;
+    stroke-width: 1;
+}
+
+/* Sankey Styles */
+.sankey-link {
+    fill: none;
+    stroke-opacity: 0.6;
+    transition: stroke-opacity 0.2s ease;
+}
+
+.sankey-link:hover {
+    stroke-opacity: 0.8;
+}
+
+.sankey-node rect {
+    fill: #0078d4;
+    stroke: #106ebe;
+    stroke-width: 1;
+    transition: fill 0.2s ease;
+}
+
+.sankey-node rect:hover {
+    fill: #106ebe;
+}
+
+.sankey-node text {
+    fill: #333;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* Line Chart Styles */
+.line {
+    fill: none;
+    stroke: #0078d4;
+    stroke-width: 2;
+}
+
+.dot {
+    fill: #0078d4;
+    stroke: white;
+    stroke-width: 2;
+    transition: r 0.2s ease;
+}
+
+.dot:hover {
+    r: 6;
+}
+
+/* Recommendations Section */
+.recommendations {
+    margin-top: 30px;
+}
+
+.recommendations h2 {
+    color: #0078d4;
+    margin-bottom: 25px;
+    font-size: 1.8em;
+}
+
+.recommendation-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 20px;
+}
+
+.recommendation-card {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.recommendation-card.high-priority {
+    border-left: 5px solid #d13438;
+}
+
+.recommendation-card.medium-priority {
+    border-left: 5px solid #ff8c00;
+}
+
+.recommendation-card.low-priority {
+    border-left: 5px solid #0078d4;
+}
+
+.recommendation-card h3 {
+    margin-bottom: 10px;
+    font-size: 1.2em;
+}
+
+.recommendation-card h4 {
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.recommendation-card ul {
+    padding-left: 20px;
+}
+
+.recommendation-card li {
+    margin-bottom: 8px;
+    color: #555;
+    line-height: 1.5;
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+    background-color: white;
+    margin: 5% auto;
+    padding: 25px;
+    border-radius: 12px;
+    width: 80%;
+    max-width: 800px;
+    max-height: 80%;
+    overflow-y: auto;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideIn {
+    from { transform: translateY(-50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.close:hover {
+    color: #000;
+}
+
+#queryText {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    line-height: 1.4;
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    margin: 15px 0;
+}
+
+.modal-content button {
+    background: #0078d4;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-top: 15px;
+    transition: background 0.2s ease;
+}
+
+.modal-content button:hover {
+    background: #106ebe;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .dashboard-container {
+        padding: 15px;
+    }
+    
+    .dashboard-header h1 {
+        font-size: 2em;
+    }
+    
+    .metrics-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .anomaly-cards {
+        grid-template-columns: 1fr;
+    }
+    
+    .recommendation-cards {
+        grid-template-columns: 1fr;
+    }
+    
+    .modal-content {
+        width: 95%;
+        margin: 10% auto;
+        padding: 20px;
+    }
+    
+    .metric-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .dashboard-header {
+        padding: 20px;
+    }
+    
+    .dashboard-header h1 {
+        font-size: 1.8em;
+    }
+    
+    .metric-section {
+        padding: 20px;
+    }
+}
+
+/* Tooltip Styles */
+.tooltip {
+    position: absolute;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.tooltip.show {
+    opacity: 1;
+}
+
+/* Loading Animation */
+.loading {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #0078d4;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
