@@ -9,6 +9,9 @@ cluster('azportalpartnerrow.westus.kusto.windows.net').database('AzurePortal').C
 
 ### Steps
 - Execute the queries in the json file.
-- Compare the retrieved query results with the expected results in `test.json`
-- If the discrepancy between results is **less than 5%**, add a comment stating the validation is successful, including the current datetime.
-- If the discrepancy is **greater than 5%**, add a comment marking it as a red flag, also including the current datetime.
+- If valid query result exits:
+    - Compare the retrieved query results with the expected results in `test.json`
+    - If the discrepancy between results is **less than 5%**, add a comment stating the validation is successful, including the current datetime.
+    - If the discrepancy is **greater than 5%**, add a comment marking it as a red flag, also including the current datetime.
+- If valid query result doesn't exits:
+    - run the queries and update the result.

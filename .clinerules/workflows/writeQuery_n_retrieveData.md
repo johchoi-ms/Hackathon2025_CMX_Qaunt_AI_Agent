@@ -48,7 +48,7 @@ cluster('azportalpartnerrow.westus.kusto.windows.net').database('AzurePortal').C
 - Peak Hours Usage: sessions by hour of day
 
 
-## Now Excuet:
+## Now Execute:
 - Connect via AZURE-MCP-SERVER
 - Run kusto queries
 - save Kusto queries and result data to the json file.

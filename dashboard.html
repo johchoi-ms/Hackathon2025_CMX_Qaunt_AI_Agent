@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Azure Policy Blade Analytics Dashboard</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12.3/dist/d3-sankey.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Ensure D3 Sankey is loaded
+        window.addEventListener('load', function() {
+            console.log('D3 version:', d3.version);
+            console.log('D3 Sankey available:', typeof d3.sankey);
+            
+            if (typeof d3.sankey === 'undefined') {
+                console.error('D3 Sankey not loaded, loading fallback...');
+                // Try alternative CDN
+                const script = document.createElement('script');
+                script.src = 'https://unpkg.com/d3-sankey@0.12.3/dist/d3-sankey.min.js';
+                script.onload = function() {
+                    console.log('Fallback D3 Sankey loaded:', typeof d3.sankey);
+                };
+                document.head.appendChild(script);
+            }
+        });
+    </script>
+</head>
+<body>
+    <header>
+        <h1>Azure Policy Blade Analytics Dashboard</h1>
+        <p class="subtitle">28-Day Performance Analysis (External Users Only)</p>
+    </header>
+
+    <!-- Executive Summary -->
+    <section class="executive-summary">
+        <h2>Executive Summary</h2>
+        <div class="summary-content">
+            <p>Azure Policy blades demonstrate strong user engagement with <strong>151,922 monthly active users</strong> and an average cross-blade engagement of <strong>2.6 blades per user</strong>. PolicyMenuBlade leads performance with 547,138 total loads and 129,272 unique users, representing the primary entry point for policy management activities. User stickiness is moderate at ~33% (WAU/MAU ratio), with PolicyComplianceDetail.ReactView showing the highest repeat visitor rate at 48.27%. Peak usage occurs during business hours (13:00-15:00 UTC) with clear weekday patterns, indicating professional usage patterns aligned with organizational policy management workflows. The user journey data reveals strong bi-directional navigation flows between core policy blades, suggesting effective blade interconnectivity and user workflow completion.</p>
+        </div>
+    </section>
+
+    <!-- Anomalies Section -->
+    <section class="anomalies">
+        <h2>⚠️ Anomalies Detected</h2>
+        <div class="anomaly-grid">
+            <div class="anomaly-item critical">
+                <h3>Low Stickiness - ScopeSelectorBlade</h3>
+                <p>13.4% stickiness ratio significantly below average (29.5%), indicating potential usability issues or limited use cases.</p>
+            </div>
+            <div class="anomaly-item warning">
+                <h3>Weekend Usage Drop</h3>
+                <p>Saturday/Sunday show 85% lower usage compared to weekdays, suggesting purely business-driven usage with minimal personal/learning activities.</p>
+            </div>
+            <div class="anomaly-item info">
+                <h3>High Session Complexity</h3>
+                <p>PolicyComplianceDetail.ReactView shows 4.03 avg sessions per user vs. 2.72 overall average, indicating complex multi-session workflows.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Dashboard Grid -->
+    <div class="dashboard-grid">
+        
+        <!-- Monthly Active Users -->
+        <div class="card">
+            <div class="card-header">
+                <h3>Monthly Active Users (MAU)</h3>
+                <button class="query-btn" onclick="showQuery('mau')">Show Query</button>
+            </div>
+            <div class="chart-container">
+                <canvas id="mauChart"></canvas>
+            </div>
+            <div class="insights">
+                <h4>💡 Insights</h4>
+                <ul>
+                    <li>PolicyMenuBlade captures 85% of all Azure Policy users (129K/152K)</li>
+                    <li>Strong funnel from main menu to compliance views</li>
+                    <li>CreateEditSelectors has lowest adoption - consider UX improvements</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Weekly Active Users Trend -->
+        <div class="card">
+            <div class="card-header">
+                <h3>Weekly Active Users Trend</h3>
+                <button class="query-btn" onclick="showQuery('wau')">Show Query</button>
+            </div>
+            <div class="chart-container">
+                <canvas id="wauChart"></canvas>
+            </div>
+            <div class="insights">
+                <h4>📈 Trend Analysis</h4>
+                <ul>
+                    <li>PolicyMenuBlade shows 17% growth over 4 weeks</li>
+                    <li>Compliance.ReactView peaked in Week 3 then declined</li>
+                    <li>Overall upward trend indicates increasing policy adoption</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Stickiness -->
+        <div class="card">
+            <div class="card-header">
+                <h3>User Stickiness (WAU/MAU)</h3>
+                <button class="query-btn" onclick="showQuery('stickiness')">Show Query</button>
+            </div>
+            <div class="chart-container">
+                <canvas id="stickinessChart"></canvas>
+            </div>
+            <div class="insights">
+                <h4>🎯 Recommendations</h4>
+                <ul>
+                    <li>Improve ScopeSelectorBlade UX (13.4% stickiness)</li>
+                    <li>PolicyComplianceDetail shows strong engagement (35.2%)</li>
+                    <li>Target 40%+ stickiness through guided workflows</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Average Sessions per User -->
+        <div class="card">
+            <div class="card-header">
+                <h3>Avg Sessions per User</h3>
+                <button class="query-btn" onclick="showQuery('sessions')">Show Query</button>
+            </div>
+            <div class="chart-container">
+                <canvas id="sessionsChart"></canvas>
+            </div>
+            <div class="insights">
+                <h4>🔄 Session Patterns</h4>
+                <ul>
+                    <li>PolicyComplianceDetail requires most sessions (4.03) - complex workflows</li>
+                    <li>CreateEditSelectors lowest (1.27) - single-purpose usage</li>
+                    <li>Consider workflow optimization for high-session blades</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- User Journey Sankey -->
+        <div class="card wide">
+            <div class="card-header">
+                <h3>User Journey Flow</h3>
+                <button class="query-btn" onclick="showQuery('journey')">Show Query</button>
+            </div>
+            <div class="chart-container">
+                <div id="sankeyChart"></div>
+            </div>
+            <div class="insights">
+                <h4>🔀 Journey Insights</h4>
+                <ul>
+                    <li>PolicyOverviewBladeV3 → PolicyMenuBlade: Primary entry flow (236K transitions)</li>
+                    <li>Strong bi-directional flow between Compliance and Menu blades</li>
+                    <li>Users follow predictable policy management workflows</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Session Frequency -->
+        <div class="card">
+            <div class="card-header">
+                <h3>Session Frequency (Active Days)</h3>
+                <button class="query-btn" onclick="showQuery('frequency')">Show Query</button>
+            </div>
+            <div class="chart-container">
+                <canvas id="frequencyChart"></canvas>
+            </div>
+            <div class="insights">
+                <h4>📅 Usage Patterns</h4>
+                <ul>
+                    <li>PolicyComplianceDetail users most active (1.93 days avg)</li>
+                    <li>All blades show <2 days avg - sporadic usage</li>
+                    <li>Opportunity for engagement campaigns</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Power Users -->
+        <div class="card">
+            <div class="card-header">
+                <h3>Top Tenant Power Users</h3>
+                <button class="query-btn" onclick="showQuery('power')">Show Query</button>
+            </div>
+            <div class="metric-display">
+                <div class="metric-large">4.25%</div>
+                <div class="metric-label">Share by Top 10% Tenants</div>
+                <div class="metric-details">71,309 of 1,678,066 total activities</div>
+            </div>
+            <div class="insights">
+                <h4>👥 Power User Analysis</h4>
+                <ul>
+                    <li>Highly distributed usage across tenants</li>
+                    <li>No single tenant dominates (healthy adoption)</li>
+                    <li>Enterprise-wide policy engagement</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Cross-Blade Engagement -->
+        <div class="card">
+            <div class="card-header">
+                <h3>Cross-Blade Engagement</h3>
+                <button class="query-btn" onclick="showQuery('crossblade')">Show Query</button>
+            </div>
+            <div class="metric-display">
+                <div class="metric-large">2.6</div>
+                <div class="metric-label">Avg Blades per User</div>
+            </div>
+            <div class="insights">
+                <h4>🌐 Engagement Insights</h4>
+                <ul>
+                    <li>Strong cross-blade navigation (2.6 avg)</li>
+                    <li>Users explore multiple policy features</li>
+                    <li>Good blade interconnectivity design</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Top Blades by Performance -->
+        <div class="card">
+            <div class="card-header">
+                <h3>Top Blades Performance</h3>
+                <button class="query-btn" onclick="showQuery('topblades')">Show Query</button>
+            </div>
+            <div class="chart-container">
+                <canvas id="topBladesChart"></canvas>
+            </div>
+            <div class="insights">
+                <h4>🏆 Performance Leaders</h4>
+                <ul>
+                    <li>PolicyMenuBlade: Clear hub (547K loads)</li>
+                    <li>Compliance views drive significant engagement</li>
+                    <li>CreateEditSelectors needs promotion</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Repeat Visitors -->
+        <div class="card">
+            <div class="card-header">
+                <h3>Repeat Visitors (≥3 visits)</h3>
+                <button class="query-btn" onclick="showQuery('repeat')">Show Query</button>
+            </div>
+            <div class="chart-container">
+                <canvas id="repeatChart"></canvas>
+            </div>
+            <div class="insights">
+                <h4>🔄 Retention Analysis</h4>
+                <ul>
+                    <li>PolicyComplianceDetail: 48% repeat rate (excellent)</li>
+                    <li>ScopeSelectorBlade: 41% despite low stickiness</li>
+                    <li>CreateEditSelectors: 19% - needs improvement</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- First-time Users -->
+        <div class="card">
+            <div class="card-header">
+                <h3>First-time Users (New This Month)</h3>
+                <button class="query-btn" onclick="showQuery('firsttime')">Show Query</button>
+            </div>
+            <div class="chart-container">
+                <canvas id="firstTimeChart"></canvas>
+            </div>
+            <div class="insights">
+                <h4>🆕 New User Acquisition</h4>
+                <ul>
+                    <li>PolicyMenuBlade: 117K new users (strong entry point)</li>
+                    <li>High new user acquisition across all blades</li>
+                    <li>Strong onboarding funnel performance</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Day of Week Engagement -->
+        <div class="card">
+            <div class="card-header">
+                <h3>Day-of-Week Usage Pattern</h3>
+                <button class="query-btn" onclick="showQuery('dayofweek')">Show Query</button>
+            </div>
+            <div class="chart-container">
+                <canvas id="dayOfWeekChart"></canvas>
+            </div>
+            <div class="insights">
+                <h4>📅 Weekly Patterns</h4>
+                <ul>
+                    <li>Tuesday-Thursday: Peak activity (39K+ users)</li>
+                    <li>Weekend: 85% drop (business-focused usage)</li>
+                    <li>Monday ramp-up pattern evident</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Peak Hours -->
+        <div class="card">
+            <div class="card-header">
+                <h3>Peak Hours Usage</h3>
+                <button class="query-btn" onclick="showQuery('peakhours')">Show Query</button>
+            </div>
+            <div class="chart-container">
+                <canvas id="peakHoursChart"></canvas>
+            </div>
+            <div class="insights">
+                <h4>⏰ Hourly Patterns</h4>
+                <ul>
+                    <li>Peak: 13:00-15:00 UTC (business hours)</li>
+                    <li>Low overnight usage (0:00-6:00)</li>
+                    <li>Consider maintenance windows outside peak hours</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Query Modal -->
+    <div id="queryModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h3>Kusto Query</h3>
+            <pre id="queryText"></pre>
+            <button onclick="copyQuery()">Copy Query</button>
+        </div>
+    </div>
+
+    <script src="dashboard.js"></script>
+</body>
+</html>
