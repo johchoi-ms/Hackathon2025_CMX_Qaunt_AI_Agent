@@ -39,13 +39,7 @@ cluster('azportalpartnerrow.westus.kusto.windows.net').database('AzurePortal').C
 - User journey between blades
     - I will build Sankey graph that you can see from this (https://d3-graph-gallery.com/sankey). Prepare the data as needed
 - Session Frequency: avg number of active days per user in 28d
-- Top Tenant (Power Users): share of activity by top X% (X configurable, default 10%)
-- Cross-Blade Engagement: avg distinct blades per user
-- Top blades by loads and users. (for multi blades analysis only)
-- Repeat Visitors: % users with ≥3 visits in 28d
-- First-time Users (New this Month): users first seen within last 28d
-- Day-of-Week Engagement: active users by weekday
-- Peak Hours Usage: sessions by hour of day
+
 
 
 ## Now Execute:
