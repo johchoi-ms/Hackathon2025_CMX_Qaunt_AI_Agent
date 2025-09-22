@@ -1,6 +1,17 @@
+
 # Azure Blade Analytics Dashboard
 
+**Hackathon 2025 Project**
+
 A comprehensive interactive analytics dashboard for Azure Portal blade telemetry data, providing actionable insights into user behavior, engagement patterns, and potential UX improvements.
+
+**Team Members (alphabetical order):**
+- Amit Yanovich Barash
+- Can Zhao
+- John Choi
+- Micheal Frederick
+- Yev Diachek
+
 
 ## 📊 Overview
 
