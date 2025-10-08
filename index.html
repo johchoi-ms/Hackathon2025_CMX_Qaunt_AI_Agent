@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Azure Blade Analytics Dashboard</title>
+    <meta name="description" content="Interactive analytics dashboard for Azure Portal blade telemetry data, providing actionable insights into user behavior and engagement patterns.">
+    <meta name="keywords" content="Azure, Analytics, Dashboard, Telemetry, Blade Usage, D3.js, Data Visualization">
+    <meta name="author" content="Azure Portal Analytics Team">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://your-domain.com/">
+    <meta property="og:title" content="Azure Blade Analytics Dashboard">
+    <meta property="og:description" content="Interactive analytics dashboard for Azure Portal blade telemetry data">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://your-domain.com/">
+    <meta property="twitter:title" content="Azure Blade Analytics Dashboard">
+    <meta property="twitter:description" content="Interactive analytics dashboard for Azure Portal blade telemetry data">
+    
+    <link rel="stylesheet" href="dashboard.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12.3/dist/d3-sankey.min.js"></script>
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="test_ver11.json" as="fetch" crossorigin="anonymous">
+    <link rel="preload" href="dashboard.js" as="script">
+    
+    <style>
+        /* Loading screen styles */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0078d4, #106ebe);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        
+        .loading-text {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+        
+        .loading-subtext {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .fade-out {
+            animation: fadeOut 0.5s ease-out forwards;
+        }
+        
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                visibility: hidden;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="loading-screen">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Loading Azure Analytics Dashboard</div>
+        <div class="loading-subtext">Preparing visualizations...</div>
+    </div>
+
+    <div class="dashboard-container">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <div class="header-content">
+                <div class="header-main">
+                    <h1>Azure Blade Analytics Dashboard</h1>
+                    <p class="last-updated">Last Updated: 2025-09-19 | Data Range: Last 28 Days</p>
+                </div>
+                <div class="header-user" id="userInfo" style="display: none;">
+                    <div class="user-details">
+                        <span id="userName">Loading...</span>
+                        <span id="userEmail"></span>
+                    </div>
+                    <button class="logout-btn" onclick="logout()">Logout</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Welcome Section for New Users -->
+        <section class="welcome-section" id="welcomeSection" style="display: none;">
+            <div class="welcome-content">
+                <h2>Welcome to Azure Blade Analytics Dashboard</h2>
+                <p>This interactive dashboard analyzes Azure Portal blade usage data to provide actionable insights into user behavior and engagement patterns.</p>
+                <div class="welcome-actions">
+                    <button class="btn-primary" onclick="hideWelcome()">View Dashboard</button>
+                    <button class="btn-secondary" onclick="showUploadModal()">Upload Your Data</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Executive Summary -->
+        <section class="executive-summary">
+            <h2>Executive Summary</h2>
+            <div class="summary-content">
+                <p><strong>Key Findings:</strong> Azure Policy blades achieved 151,934 Monthly Active Users with an overall stickiness of 32.65%. PolicyMenuBlade leads with 129,277 users, while PolicyComplianceDetail.ReactView shows the highest engagement with 4.04 sessions per user. ScopeSelectorBlade exhibits concerning low stickiness at 13.53%, indicating potential UX issues requiring immediate attention. The top user flow (PolicyOverviewBladeV3 → PolicyMenuBlade) accounts for 236,252 navigation events, suggesting PolicyMenuBlade serves as the primary hub. Users average 1.7 active days per month, indicating moderate but consistent engagement patterns.</p>
+            </div>
+        </section>
+
+        <!-- Anomalies Section -->
+        <section class="anomalies-section">
+            <h2>🚨 Anomalies & Red Flags</h2>
+            <div class="anomaly-cards">
+                <div class="anomaly-card critical">
+                    <h3>Critical: Low Stickiness</h3>
+                    <p><strong>ScopeSelectorBlade:</strong> Only 13.53% stickiness vs 32% average. This suggests users struggle with scope selection functionality.</p>
+                    <p><strong>Action Required:</strong> UX review and usability testing needed immediately.</p>
+                </div>
+                <div class="anomaly-card warning">
+                    <h3>Warning: High Session Intensity</h3>
+                    <p><strong>PolicyComplianceDetail.ReactView:</strong> 4.04 sessions per user (40% above average). May indicate complex workflows or navigation issues.</p>
+                    <p><strong>Recommendation:</strong> Simplify compliance detail workflows.</p>
+                </div>
+                <div class="anomaly-card info">
+                    <h3>Opportunity: Traffic Hub Pattern</h3>
+                    <p><strong>PolicyMenuBlade:</strong> Central to 60% of all major user flows. Consider optimizing as primary entry point.</p>
+                    <p><strong>Suggestion:</strong> Enhance discoverability of key features from this hub.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Metrics Grid -->
+        <div class="metrics-grid">
+            <!-- MAU Section -->
+            <section class="metric-section">
+                <div class="metric-header">
+                    <h2>Monthly Active Users (MAU)</h2>
+                    <button class="query-btn" onclick="showQuery('mau')">Show Query</button>
+                </div>
+                <div class="chart-container">
+                    <div id="mau-chart"></div>
+                    <div class="metric-insights">
+                        <h4>Key Insights:</h4>
+                        <ul>
+                            <li>PolicyMenuBlade dominates with 85% of overall MAU</li>
+                            <li>Compliance.ReactView shows strong adoption (75% of overall)</li>
+                            <li>ScopeSelectorBlade and PolicyComplianceDetail have similar user bases (~33k each)</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- WAU Trend Section -->
+            <section class="metric-section">
+                <div class="metric-header">
+                    <h2>Weekly Active Users Trend</h2>
+                    <button class="query-btn" onclick="showQuery('wau')">Show Query</button>
+                </div>
+                <div class="chart-container">
+                    <div id="wau-trend-chart"></div>
+                    <div class="metric-insights">
+                        <h4>Trend Analysis:</h4>
+                        <ul>
+                            <li>PolicyMenuBlade shows stability across all weeks (38k-43k users)</li>
+                            <li>ScopeSelectorBlade exhibits volatility (4k-15k range)</li>
+                            <li>Overall WAU maintained at ~50k for current week</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Stickiness Section -->
+            <section class="metric-section">
+                <div class="metric-header">
+                    <h2>Stickiness (WAU/MAU)</h2>
+                    <button class="query-btn" onclick="showQuery('stickiness')">Show Query</button>
+                </div>
+                <div class="chart-container">
+                    <div id="stickiness-chart"></div>
+                    <div class="metric-insights">
+                        <h4>Engagement Quality:</h4>
+                        <ul>
+                            <li>PolicyComplianceDetail leads with 35.19% stickiness</li>
+                            <li>Most blades cluster around 32-33% (healthy range)</li>
+                            <li>ScopeSelectorBlade at 13.53% needs immediate attention</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sessions Per User Section -->
+            <section class="metric-section">
+                <div class="metric-header">
+                    <h2>Average Sessions Per User</h2>
+                    <button class="query-btn" onclick="showQuery('sessions')">Show Query</button>
+                </div>
+                <div class="chart-container">
+                    <div id="sessions-chart"></div>
+                    <div class="metric-insights">
+                        <h4>Usage Intensity:</h4>
+                        <ul>
+                            <li>PolicyComplianceDetail shows highest intensity (4.04 sessions)</li>
+                            <li>Overall average of 2.87 sessions indicates good engagement</li>
+                            <li>Compliance.ReactView lowest at 2.05 (more efficient workflows)</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Session Frequency Section -->
+            <section class="metric-section">
+                <div class="metric-header">
+                    <h2>Session Frequency (Active Days)</h2>
+                    <button class="query-btn" onclick="showQuery('frequency')">Show Query</button>
+                </div>
+                <div class="chart-container">
+                    <div id="frequency-chart"></div>
+                    <div class="metric-insights">
+                        <h4>Usage Patterns:</h4>
+                        <ul>
+                            <li>PolicyComplianceDetail users most active (1.92 days/28d)</li>
+                            <li>Overall frequency of 1.7 days suggests periodic usage pattern</li>
+                            <li>ScopeSelectorBlade lowest frequency aligns with stickiness concerns</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sankey Diagram Section -->
+            <section class="metric-section full-width">
+                <div class="metric-header">
+                    <h2>User Journey Flow</h2>
+                    <button class="query-btn" onclick="showQuery('sankey')">Show Query</button>
+                </div>
+                <div class="chart-container">
+                    <div id="sankey-chart"></div>
+                    <div class="metric-insights">
+                        <h4>Navigation Patterns:</h4>
+                        <ul>
+                            <li>PolicyMenuBlade acts as central hub (60% of major flows)</li>
+                            <li>Strong bidirectional flow between Overview and Menu blades</li>
+                            <li>Compliance workflows show cyclical patterns (users return frequently)</li>
+                            <li>ScopeSelectorBlade primarily feeds into other blades (limited retention)</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Recommendations Section -->
+        <section class="recommendations">
+            <h2>Actionable Recommendations</h2>
+            <div class="recommendation-cards">
+                <div class="recommendation-card high-priority">
+                    <h3>🔥 High Priority</h3>
+                    <h4>Fix ScopeSelectorBlade UX Issues</h4>
+                    <ul>
+                        <li>Conduct user interviews to identify pain points in scope selection</li>
+                        <li>Implement guided scope selection with contextual help</li>
+                        <li>Add scope validation and error prevention mechanisms</li>
+                        <li>Target: Increase stickiness from 13.5% to 25% within 2 quarters</li>
+                    </ul>
+                </div>
+                <div class="recommendation-card medium-priority">
+                    <h3>⚡ Medium Priority</h3>
+                    <h4>Optimize PolicyComplianceDetail Workflows</h4>
+                    <ul>
+                        <li>Streamline compliance detail viewing (reduce from 4.04 to 3.0 sessions)</li>
+                        <li>Implement bulk actions for compliance management</li>
+                        <li>Add contextual navigation to reduce back-and-forth patterns</li>
+                    </ul>
+                </div>
+                <div class="recommendation-card low-priority">
+                    <h3>📊 Strategic</h3>
+                    <h4>Enhance PolicyMenuBlade as Central Hub</h4>
+                    <ul>
+                        <li>Add personalized recommendations based on user patterns</li>
+                        <li>Implement quick actions for common tasks</li>
+                        <li>Consider dashboard-style overview for frequent users</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="dashboard-footer">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Azure Blade Analytics Dashboard</h4>
+                    <p>Interactive analytics for Azure Portal blade telemetry data</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="#" onclick="showDocumentation()">Documentation</a></li>
+                        <li><a href="#" onclick="showUploadModal()">Upload Data</a></li>
+                        <li><a href="https://github.com/johchoi-ms/Hackathon2025_CMX_Qaunt_AI_Agent" target="_blank">GitHub</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Support</h4>
+                    <ul>
+                        <li><a href="#" onclick="showFeedbackModal()">Send Feedback</a></li>
+                        <li><a href="#" onclick="showHelpModal()">Help</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Azure Portal Analytics Team. Built with D3.js and Azure Static Web Apps.</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Modals -->
+    
+    <!-- Query Modal -->
+    <div id="queryModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>KQL Query</h3>
+            <pre id="queryText"></pre>
+            <button onclick="copyQuery()">Copy to Clipboard</button>
+        </div>
+    </div>
+
+    <!-- Upload Modal -->
+    <div id="uploadModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('uploadModal')">&times;</span>
+            <h3>Upload Your Data</h3>
+            <p>Upload a JSON file with Azure blade telemetry data to analyze your own metrics.</p>
+            <div class="upload-area" id="uploadArea">
+                <input type="file" id="fileInput" accept=".json" style="display: none;">
+                <div class="upload-text">
+                    <i>📁</i>
+                    <p>Click to select or drag and drop your JSON file here</p>
+                    <small>Supported format: JSON files up to 10MB</small>
+                </div>
+            </div>
+            <div class="upload-actions">
+                <button onclick="triggerFileInput()">Select File</button>
+                <button onclick="closeModal('uploadModal')">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Modal -->
+    <div id="errorModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('errorModal')">&times;</span>
+            <h3>Error</h3>
+            <p id="errorMessage"></p>
+            <button onclick="closeModal('errorModal')">OK</button>
+        </div>
+    </div>
+
+    <script>
+        // Enhanced loading and initialization
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check authentication status and load user info
+            loadUserInfo();
+            
+            // Check if user is first-time visitor
+            const isFirstVisit = !localStorage.getItem('visited');
+            if (isFirstVisit) {
+                document.getElementById('welcomeSection').style.display = 'block';
+                localStorage.setItem('visited', 'true');
+            }
+            
+            // Initialize dashboard after a brief delay for loading screen
+            setTimeout(() => {
+                document.getElementById('loadingScreen').classList.add('fade-out');
+                setTimeout(() => {
+                    document.getElementById('loadingScreen').style.display = 'none';
+                }, 500);
+            }, 1500);
+        });
+
+        // Load user authentication information
+        async function loadUserInfo() {
+            try {
+                const response = await fetch('/.auth/me');
+                if (response.ok) {
+                    const authInfo = await response.json();
+                    if (authInfo.clientPrincipal) {
+                        displayUserInfo(authInfo.clientPrincipal);
+                    }
+                }
+            } catch (error) {
+                console.log('No authentication info available:', error);
+            }
+        }
+
+        // Display user information in header
+        function displayUserInfo(user) {
+            const userInfo = document.getElementById('userInfo');
+            const userName = document.getElementById('userName');
+            const userEmail = document.getElementById('userEmail');
+            
+            userName.textContent = user.userDetails || user.userId;
+            userEmail.textContent = user.userId || '';
+            userInfo.style.display = 'block';
+            
+            // Add welcome message for authenticated users
+            if (user.userDetails) {
+                const welcomeSection = document.getElementById('welcomeSection');
+                if (welcomeSection) {
+                    const welcomeContent = welcomeSection.querySelector('.welcome-content');
+                    welcomeContent.innerHTML = `
+                        <h2>Welcome back, ${user.userDetails.split('@')[0]}!</h2>
+                        <p>You're accessing the Azure Blade Analytics Dashboard as an authenticated Microsoft employee.</p>
+                        <div class="welcome-actions">
+                            <button class="btn-primary" onclick="hideWelcome()">View Dashboard</button>
+                            <button class="btn-secondary" onclick="showUploadModal()">Upload Your Data</button>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        // Logout function
+        function logout() {
+            window.location.href = '/.auth/logout';
+        }
+
+        // Helper functions for new features
+        function hideWelcome() {
+            document.getElementById('welcomeSection').style.display = 'none';
+        }
+
+        function showUploadModal() {
+            document.getElementById('uploadModal').style.display = 'block';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        function triggerFileInput() {
+            document.getElementById('fileInput').click();
+        }
+
+        function showError(message) {
+            document.getElementById('errorMessage').textContent = message;
+            document.getElementById('errorModal').style.display = 'block';
+        }
+
+        // File upload handling
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                if (file.size > 10 * 1024 * 1024) { // 10MB limit
+                    showError('File size must be less than 10MB');
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        // Validate data structure here
+                        if (validateDataStructure(data)) {
+                            // Replace dashboard data and reload visualizations
+                            dashboardData = data;
+                            refreshDashboard();
+                            closeModal('uploadModal');
+                        } else {
+                            showError('Invalid data format. Please upload a valid Azure telemetry JSON file.');
+                        }
+                    } catch (error) {
+                        showError('Error parsing JSON file: ' + error.message);
+                    }
+                };
+                reader.readAsText(file);
+            }
+        });
+
+        function validateDataStructure(data) {
+            // Basic validation - check for required structure
+            return data && 
+                   data.metrics && 
+                   data.metrics.monthly_active_users && 
+                   data.metrics.stickiness &&
+                   data.metrics.user_journey_sankey;
+        }
+
+        function refreshDashboard() {
+            // Clear existing charts
+            d3.selectAll('.chart-svg').remove();
+            
+            // Recreate all visualizations with new data
+            setTimeout(() => {
+                if (typeof createMAUChart === 'function') {
+                    createMAUChart();
+                    createWAUTrendChart();
+                    createStickinessChart();
+                    createSessionsChart();
+                    createFrequencyChart();
+                    createSankeyDiagram();
+                }
+            }, 100);
+        }
+
+        // Enhanced drag and drop for upload area
+        const uploadArea = document.getElementById('uploadArea');
+        
+        uploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            uploadArea.classList.add('drag-over');
+        });
+
+        uploadArea.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('drag-over');
+        });
+
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('drag-over');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                document.getElementById('fileInput').files = files;
+                document.getElementById('fileInput').dispatchEvent(new Event('change'));
+            }
+        });
+
+        uploadArea.addEventListener('click', function() {
+            triggerFileInput();
+        });
+    </script>
+    
+    <script src="dashboard.js"></script>
+</body>
+</html>

@@ -86,24 +86,35 @@ This dashboard analyzes Azure Portal blade usage data over a 28-day period, focu
 
 ### Prerequisites
 - Modern web browser (Chrome, Firefox, Safari, Edge)
-- Local web server (recommended) or file:// protocol support
+- Internet connection (for D3.js CDN)
+- Optional: Node.js for development tools
 
-### Quick Start
+### Quick Start Options
 
-1. **Clone or Download** the project files
-2. **Open** `dashboard.html` in a web browser
-3. **Explore** the interactive visualizations and insights
+#### Option 1: Visit Live Dashboard
+- **GitHub Pages**: https://johchoi-ms.github.io/Hackathon2025_CMX_Qaunt_AI_Agent/
+- **Azure Static Web Apps**: Deploy your own instance
 
-### Recommended Setup
+#### Option 2: Local Development
 ```bash
-# Using Python's built-in server
-python -m http.server 8000
+# Clone the repository
+git clone https://github.com/johchoi-ms/Hackathon2025_CMX_Qaunt_AI_Agent.git
+cd Hackathon2025_CMX_Qaunt_AI_Agent
 
-# Using Node.js http-server
-npx http-server
+# Install dependencies (optional, for development tools)
+npm install
 
-# Then open: http://localhost:8000/dashboard.html
+# Start local server (choose one method)
+npm start              # Python server
+npm run serve          # Node.js serve
+npm run dev           # Live reload server
+
+# Open http://localhost:8000 in your browser
 ```
+
+#### Option 3: One-Click Deploy
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.StaticApp)
+[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/johchoi-ms/Hackathon2025_CMX_Qaunt_AI_Agent)
 
 ## 📈 Data Source Information
 
@@ -234,13 +245,65 @@ To update the dashboard with new data:
 3. Update the `last_updated` timestamp in HTML header
 4. Refresh the dashboard
 
+## 🌐 Deployment Options
+
+### Production-Ready Hosting
+1. **Azure Static Web Apps** (Recommended)
+   - Perfect integration with Azure ecosystem
+   - Automatic CI/CD from GitHub
+   - Free SSL certificates and custom domains
+
+2. **GitHub Pages** (Free)
+   - Simple deployment from your repository
+   - Great for open-source projects
+
+3. **Netlify** (Feature-Rich)
+   - Easy drag-and-drop deployment
+   - Advanced features and CDN
+
+4. **Vercel** (Developer-Friendly)
+   - Optimized for frontend applications
+   - Automatic optimizations
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed setup instructions.
+
+## 📖 Documentation
+
+- **[User Guide](USER_GUIDE.md)** - Complete guide to using the dashboard
+- **[Deployment Guide](DEPLOYMENT.md)** - Step-by-step deployment instructions
+- **[Authentication Setup](AUTH_SETUP.md)** - Microsoft employee authentication
+- **[Config File Auth](CONFIG_FILE_AUTH.md)** - Alternative auth setup method
+- **[Security Guide](SECURITY.md)** - Security configuration and best practices
+
+## 🛠️ Development Tools
+
+```bash
+# Validate data structure
+npm run validate
+
+# Run accessibility tests
+npm run test:accessibility
+
+# Performance analysis
+npm run lighthouse
+
+# Build optimized version
+npm run build
+```
+
 ## 🤝 Contributing
 
-To contribute improvements:
-1. Follow existing code patterns and styling
-2. Test across multiple browsers and devices
-3. Validate data accuracy with source queries
-4. Update documentation for any new features
+We welcome contributions! Here's how to get started:
+
+1. **Fork the repository**
+2. **Create a feature branch**: `git checkout -b feature-name`
+3. **Make your changes**:
+   - Follow existing code patterns and styling
+   - Test across multiple browsers and devices
+   - Validate data accuracy with source queries
+   - Update documentation for any new features
+4. **Run tests**: `npm test`
+5. **Submit a pull request**
 
 ## 📄 License
 

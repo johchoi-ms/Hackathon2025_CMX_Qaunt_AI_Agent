@@ -28,7 +28,14 @@ body {
     box-shadow: 0 4px 15px rgba(0, 120, 212, 0.2);
 }
 
-.dashboard-header h1 {
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+.header-main h1 {
     font-size: 2.5em;
     margin-bottom: 10px;
     font-weight: 300;
@@ -37,6 +44,50 @@ body {
 .last-updated {
     font-size: 1.1em;
     opacity: 0.9;
+}
+
+.header-user {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 15px 20px;
+    border-radius: 8px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.user-details {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+}
+
+.user-details span:first-child {
+    font-weight: 600;
+    font-size: 1em;
+}
+
+.user-details span:last-child {
+    font-size: 0.85em;
+    opacity: 0.8;
+}
+
+.logout-btn {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: all 0.2s ease;
+}
+
+.logout-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
 }
 
 /* Executive Summary */
@@ -483,4 +534,277 @@ body {
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+}
+
+/* Welcome Section */
+.welcome-section {
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    padding: 40px;
+    border-radius: 12px;
+    margin-bottom: 30px;
+    text-align: center;
+    border: 2px solid #0078d4;
+}
+
+.welcome-content h2 {
+    color: #0078d4;
+    margin-bottom: 15px;
+    font-size: 2em;
+}
+
+.welcome-content p {
+    font-size: 1.1em;
+    margin-bottom: 25px;
+    color: #555;
+}
+
+.welcome-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn-primary, .btn-secondary {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-primary {
+    background: #0078d4;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #106ebe;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 120, 212, 0.3);
+}
+
+.btn-secondary {
+    background: white;
+    color: #0078d4;
+    border: 2px solid #0078d4;
+}
+
+.btn-secondary:hover {
+    background: #0078d4;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 120, 212, 0.3);
+}
+
+/* Upload Modal Styles */
+.upload-area {
+    border: 2px dashed #ddd;
+    border-radius: 12px;
+    padding: 40px 20px;
+    text-align: center;
+    margin: 20px 0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: #f8f9fa;
+}
+
+.upload-area:hover, .upload-area.drag-over {
+    border-color: #0078d4;
+    background: #f0f8ff;
+}
+
+.upload-text i {
+    font-size: 3em;
+    display: block;
+    margin-bottom: 15px;
+    color: #666;
+}
+
+.upload-text p {
+    font-size: 1.1em;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.upload-text small {
+    color: #666;
+    font-size: 0.9em;
+}
+
+.upload-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.upload-actions button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background 0.2s ease;
+}
+
+.upload-actions button:first-child {
+    background: #0078d4;
+    color: white;
+}
+
+.upload-actions button:first-child:hover {
+    background: #106ebe;
+}
+
+.upload-actions button:last-child {
+    background: #6c757d;
+    color: white;
+}
+
+.upload-actions button:last-child:hover {
+    background: #5a6268;
+}
+
+/* Footer Styles */
+.dashboard-footer {
+    background: #2c3e50;
+    color: white;
+    margin-top: 50px;
+    padding: 40px 0 20px 0;
+}
+
+.footer-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+}
+
+.footer-section h4 {
+    color: #3498db;
+    margin-bottom: 15px;
+    font-size: 1.2em;
+}
+
+.footer-section p {
+    line-height: 1.6;
+    margin-bottom: 15px;
+}
+
+.footer-section ul {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-section ul li {
+    margin-bottom: 8px;
+}
+
+.footer-section ul li a {
+    color: #bdc3c7;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.footer-section ul li a:hover {
+    color: #3498db;
+}
+
+.footer-bottom {
+    border-top: 1px solid #34495e;
+    margin-top: 30px;
+    padding-top: 20px;
+    text-align: center;
+    color: #bdc3c7;
+}
+
+/* Enhanced Modal Styles */
+.modal-content {
+    position: relative;
+}
+
+.modal-content h3 {
+    color: #0078d4;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+/* Error Styles */
+.error-message {
+    background: #f8d7da;
+    color: #721c24;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #f5c6cb;
+    margin: 15px 0;
+}
+
+.success-message {
+    background: #d4edda;
+    color: #155724;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #c3e6cb;
+    margin: 15px 0;
+}
+
+/* Enhanced Responsive Design */
+@media (max-width: 768px) {
+    .header-content {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .header-user {
+        align-self: flex-end;
+        flex-direction: row;
+        justify-content: space-between;
+    }
+    
+    .user-details {
+        align-items: flex-start;
+    }
+    
+    .welcome-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .btn-primary, .btn-secondary {
+        width: 200px;
+    }
+    
+    .footer-content {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+    
+    .upload-area {
+        padding: 30px 15px;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .dashboard-header, .welcome-section, .query-btn, .modal, .dashboard-footer {
+        display: none !important;
+    }
+    
+    .dashboard-container {
+        max-width: none;
+        padding: 0;
+    }
+    
+    .metric-section {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
 }
