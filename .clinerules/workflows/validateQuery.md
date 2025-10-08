@@ -5,7 +5,7 @@
 - Validate the query results
 
 ### Data Source
-cluster('azportalpartnerrow.westus.kusto.windows.net').database('AzurePortal').ClientTelemetry 
+- cluster('azportalpartnerrow.westus.kusto.windows.net').database('AzurePortal').ClientTelemetry 
 
 ### Steps
 - Execute the queries in the json file.
