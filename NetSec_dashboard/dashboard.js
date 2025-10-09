@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // Load data from JSON file
 async function loadData() {
     try {
+        // Try to fetch from JSON file first (works with web server)
         const response = await fetch('./netsec_ver02.json');
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -27,15 +28,31 @@ async function loadData() {
         
         console.log('Dashboard initialized successfully');
     } catch (error) {
-        console.error('Error loading data:', error);
-        showError('Failed to load dashboard data: ' + error.message);
+        console.error('Error loading data from file, trying fallback...', error);
         
-        // Show error message in containers
-        d3.select('#mau-chart').html('<div style="padding: 20px; text-align: center; color: red;">Error loading data</div>');
-        d3.select('#weekly-trend-chart').html('<div style="padding: 20px; text-align: center; color: red;">Error loading data</div>');
-        d3.select('#sankey-chart').html('<div style="padding: 20px; text-align: center; color: red;">Error loading data</div>');
-        d3.select('#sessions-chart').html('<div style="padding: 20px; text-align: center; color: red;">Error loading data</div>');
-        d3.select('#engagement-table').html('<div style="padding: 20px; text-align: center; color: red;">Error loading data</div>');
+        // Fallback: use embedded data for when files are opened directly
+        try {
+            dashboardData = getEmbeddedData();
+            console.log('Using embedded data fallback');
+            
+            // Store queries for modal display
+            extractQueries();
+            
+            // Initialize all visualizations
+            initializeCharts();
+            
+            console.log('Dashboard initialized successfully with embedded data');
+        } catch (fallbackError) {
+            console.error('Fallback also failed:', fallbackError);
+            showError('Failed to load dashboard data: ' + error.message);
+            
+            // Show error message in containers
+            d3.select('#mau-chart').html('<div style="padding: 20px; text-align: center; color: red;">Error loading data</div>');
+            d3.select('#weekly-trend-chart').html('<div style="padding: 20px; text-align: center; color: red;">Error loading data</div>');
+            d3.select('#sankey-chart').html('<div style="padding: 20px; text-align: center; color: red;">Error loading data</div>');
+            d3.select('#sessions-chart').html('<div style="padding: 20px; text-align: center; color: red;">Error loading data</div>');
+            d3.select('#engagement-table').html('<div style="padding: 20px; text-align: center; color: red;">Error loading data</div>');
+        }
     }
 }
 
@@ -843,3 +860,358 @@ window.addEventListener('resize', function() {
         initializeCharts();
     }, 250);
 });
+
+// Embedded data as fallback when JSON file can't be loaded
+function getEmbeddedData() {
+    return {
+        "metadata": {
+            "generated_at": "2025-10-08T21:15:00Z",
+            "time_range": "Last 28 days (ago(28d))",
+            "data_source": "cluster('azportalpartnerrow.westus.kusto.windows.net').database('AzurePortal').ClientTelemetry",
+            "external_users_only": true,
+            "filters_applied": {
+                "action": "BladeFullReady",
+                "userTypeHint": "empty string (external users)",
+                "requestUri": "startswith 'https://portal.'",
+                "tenantId": "!= '72f988bf-86f1-41af-91ab-2d7cd011db47' (excludes Microsoft internal)"
+            }
+        },
+        "queries_and_results": {
+            "monthly_active_users_by_blade": {
+                "query": "// Monthly Active Users (MAU) by blade for last 28 days\nClientTelemetry\n| where PreciseTimeStamp >= ago(28d)\n| where action == \"BladeFullReady\"\n| where name in (\n    \"Extension/Microsoft_Azure_HybridNetworking/Blade/GettingStartedTabs.ReactView\",\n    \"Extension/Microsoft_Azure_HybridNetworking/Blade/RelatedServices.ReactView\", \n    \"Extension/Microsoft_Azure_DNS/Blade/TrafficManagerCreate.ReactView\",\n    \"Extension/Microsoft_Azure_HybridNetworking/Blade/CreateBastionHostBlade\",\n    \"Extension/Microsoft_Azure_Security_Insights/Blade/OnboardingBlade\",\n    \"Extension/Microsoft_Azure_Monitoring/Blade/GettingStartedBladeViewModel\",\n    \"Extension/Microsoft_Azure_Security/Blade/OverviewBladeV3\",\n    \"Extension/Microsoft_Azure_DataProtection/Blade/BackupCenterOverviewBlade\",\n    \"Extension/Microsoft_Azure_Network/Blade/CreatePrivateEndpointBlade\",\n    \"Extension/Microsoft_Azure_RecoveryServices/Blade/CreateBladeFullScreen\"\n)\n| where userTypeHint == \"\" and requestUri startswith \"https://portal.\" and tenantId != \"72f988bf-86f1-41af-91ab-2d7cd011db47\"\n| summarize MAU = dcount(userId) by name\n| project BladeName = name, MAU_28d = MAU\n| order by MAU_28d desc",
+                "result": [
+                    {
+                        "BladeName": "Extension/Microsoft_Azure_Monitoring/Blade/GettingStartedBladeViewModel",
+                        "MAU_28d": 150753
+                    },
+                    {
+                        "BladeName": "Extension/Microsoft_Azure_Security/Blade/OverviewBladeV3",
+                        "MAU_28d": 108138
+                    },
+                    {
+                        "BladeName": "Extension/Microsoft_Azure_Network/Blade/CreatePrivateEndpointBlade",
+                        "MAU_28d": 56566
+                    },
+                    {
+                        "BladeName": "Extension/Microsoft_Azure_HybridNetworking/Blade/GettingStartedTabs.ReactView",
+                        "MAU_28d": 23491
+                    },
+                    {
+                        "BladeName": "Extension/Microsoft_Azure_RecoveryServices/Blade/CreateBladeFullScreen",
+                        "MAU_28d": 10729
+                    },
+                    {
+                        "BladeName": "Extension/Microsoft_Azure_Security_Insights/Blade/OnboardingBlade",
+                        "MAU_28d": 10348
+                    },
+                    {
+                        "BladeName": "Extension/Microsoft_Azure_HybridNetworking/Blade/CreateBastionHostBlade",
+                        "MAU_28d": 9658
+                    },
+                    {
+                        "BladeName": "Extension/Microsoft_Azure_DataProtection/Blade/BackupCenterOverviewBlade",
+                        "MAU_28d": 3187
+                    },
+                    {
+                        "BladeName": "Extension/Microsoft_Azure_DNS/Blade/TrafficManagerCreate.ReactView",
+                        "MAU_28d": 2885
+                    },
+                    {
+                        "BladeName": "Extension/Microsoft_Azure_HybridNetworking/Blade/RelatedServices.ReactView",
+                        "MAU_28d": 2433
+                    }
+                ]
+            },
+            "weekly_active_users_trend": {
+                "query": "// Weekly Active Users (WAU) trend - 4 specific time periods\nlet bladeNames = dynamic([\n    \"Extension/Microsoft_Azure_HybridNetworking/Blade/GettingStartedTabs.ReactView\",\n    \"Extension/Microsoft_Azure_HybridNetworking/Blade/RelatedServices.ReactView\", \n    \"Extension/Microsoft_Azure_DNS/Blade/TrafficManagerCreate.ReactView\",\n    \"Extension/Microsoft_Azure_HybridNetworking/Blade/CreateBastionHostBlade\",\n    \"Extension/Microsoft_Azure_Security_Insights/Blade/OnboardingBlade\",\n    \"Extension/Microsoft_Azure_Monitoring/Blade/GettingStartedBladeViewModel\",\n    \"Extension/Microsoft_Azure_Security/Blade/OverviewBladeV3\",\n    \"Extension/Microsoft_Azure_DataProtection/Blade/BackupCenterOverviewBlade\",\n    \"Extension/Microsoft_Azure_Network/Blade/CreatePrivateEndpointBlade\",\n    \"Extension/Microsoft_Azure_RecoveryServices/Blade/CreateBladeFullScreen\"\n]);\nClientTelemetry\n| where PreciseTimeStamp >= ago(28d)\n| where action == \"BladeFullReady\"\n| where name in (bladeNames)\n| where userTypeHint == \"\" and requestUri startswith \"https://portal.\" and tenantId != \"72f988bf-86f1-41af-91ab-2d7cd011db47\"\n| extend WeekCategory = case(\n    PreciseTimeStamp >= ago(7d), \"Current Week\",\n    PreciseTimeStamp >= ago(14d) and PreciseTimeStamp < ago(7d), \"Week 1\",\n    PreciseTimeStamp >= ago(21d) and PreciseTimeStamp < ago(14d), \"Week 2\",\n    PreciseTimeStamp >= ago(28d) and PreciseTimeStamp < ago(21d), \"Week 3\",\n    \"Other\"\n)\n| extend WeeksAgo = case(\n    WeekCategory == \"Current Week\", 0,\n    WeekCategory == \"Week 1\", 1,\n    WeekCategory == \"Week 2\", 2,\n    WeekCategory == \"Week 3\", 3,\n    -1\n)\n| where WeekCategory != \"Other\"\n| summarize WAU = dcount(userId) by WeekCategory, BladeName = name, WeeksAgo\n| order by WeeksAgo asc, WAU desc",
+                "result": [
+                    {
+                        "WeekCategory": "Current Week",
+                        "BladeName": "Extension/Microsoft_Azure_Monitoring/Blade/GettingStartedBladeViewModel",
+                        "WAU": 46647,
+                        "WeeksAgo": 0
+                    },
+                    {
+                        "WeekCategory": "Current Week",
+                        "BladeName": "Extension/Microsoft_Azure_Security/Blade/OverviewBladeV3",
+                        "WAU": 37123,
+                        "WeeksAgo": 0
+                    },
+                    {
+                        "WeekCategory": "Current Week",
+                        "BladeName": "Extension/Microsoft_Azure_Network/Blade/CreatePrivateEndpointBlade",
+                        "WAU": 16684,
+                        "WeeksAgo": 0
+                    },
+                    {
+                        "WeekCategory": "Current Week",
+                        "BladeName": "Extension/Microsoft_Azure_HybridNetworking/Blade/GettingStartedTabs.ReactView",
+                        "WAU": 6136,
+                        "WeeksAgo": 0
+                    },
+                    {
+                        "WeekCategory": "Current Week",
+                        "BladeName": "Extension/Microsoft_Azure_RecoveryServices/Blade/CreateBladeFullScreen",
+                        "WAU": 2842,
+                        "WeeksAgo": 0
+                    },
+                    {
+                        "WeekCategory": "Current Week",
+                        "BladeName": "Extension/Microsoft_Azure_Security_Insights/Blade/OnboardingBlade",
+                        "WAU": 2690,
+                        "WeeksAgo": 0
+                    },
+                    {
+                        "WeekCategory": "Current Week",
+                        "BladeName": "Extension/Microsoft_Azure_HybridNetworking/Blade/CreateBastionHostBlade",
+                        "WAU": 2495,
+                        "WeeksAgo": 0
+                    },
+                    {
+                        "WeekCategory": "Current Week",
+                        "BladeName": "Extension/Microsoft_Azure_DataProtection/Blade/BackupCenterOverviewBlade",
+                        "WAU": 1593,
+                        "WeeksAgo": 0
+                    },
+                    {
+                        "WeekCategory": "Current Week",
+                        "BladeName": "Extension/Microsoft_Azure_DNS/Blade/TrafficManagerCreate.ReactView",
+                        "WAU": 739,
+                        "WeeksAgo": 0
+                    },
+                    {
+                        "WeekCategory": "Current Week",
+                        "BladeName": "Extension/Microsoft_Azure_HybridNetworking/Blade/RelatedServices.ReactView",
+                        "WAU": 625,
+                        "WeeksAgo": 0
+                    },
+                    {
+                        "WeekCategory": "Week 1",
+                        "BladeName": "Extension/Microsoft_Azure_Monitoring/Blade/GettingStartedBladeViewModel",
+                        "WAU": 48009,
+                        "WeeksAgo": 1
+                    },
+                    {
+                        "WeekCategory": "Week 1",
+                        "BladeName": "Extension/Microsoft_Azure_Security/Blade/OverviewBladeV3",
+                        "WAU": 38473,
+                        "WeeksAgo": 1
+                    },
+                    {
+                        "WeekCategory": "Week 1",
+                        "BladeName": "Extension/Microsoft_Azure_Network/Blade/CreatePrivateEndpointBlade",
+                        "WAU": 17520,
+                        "WeeksAgo": 1
+                    },
+                    {
+                        "WeekCategory": "Week 1",
+                        "BladeName": "Extension/Microsoft_Azure_HybridNetworking/Blade/GettingStartedTabs.ReactView",
+                        "WAU": 6587,
+                        "WeeksAgo": 1
+                    },
+                    {
+                        "WeekCategory": "Week 2",
+                        "BladeName": "Extension/Microsoft_Azure_Monitoring/Blade/GettingStartedBladeViewModel",
+                        "WAU": 48112,
+                        "WeeksAgo": 2
+                    },
+                    {
+                        "WeekCategory": "Week 2",
+                        "BladeName": "Extension/Microsoft_Azure_Security/Blade/OverviewBladeV3",
+                        "WAU": 38163,
+                        "WeeksAgo": 2
+                    },
+                    {
+                        "WeekCategory": "Week 2",
+                        "BladeName": "Extension/Microsoft_Azure_Network/Blade/CreatePrivateEndpointBlade",
+                        "WAU": 18217,
+                        "WeeksAgo": 2
+                    },
+                    {
+                        "WeekCategory": "Week 2",
+                        "BladeName": "Extension/Microsoft_Azure_HybridNetworking/Blade/GettingStartedTabs.ReactView",
+                        "WAU": 6910,
+                        "WeeksAgo": 2
+                    },
+                    {
+                        "WeekCategory": "Week 3",
+                        "BladeName": "Extension/Microsoft_Azure_Monitoring/Blade/GettingStartedBladeViewModel",
+                        "WAU": 48256,
+                        "WeeksAgo": 3
+                    },
+                    {
+                        "WeekCategory": "Week 3",
+                        "BladeName": "Extension/Microsoft_Azure_Security/Blade/OverviewBladeV3",
+                        "WAU": 37829,
+                        "WeeksAgo": 3
+                    },
+                    {
+                        "WeekCategory": "Week 3",
+                        "BladeName": "Extension/Microsoft_Azure_Network/Blade/CreatePrivateEndpointBlade",
+                        "WAU": 17919,
+                        "WeeksAgo": 3
+                    },
+                    {
+                        "WeekCategory": "Week 3",
+                        "BladeName": "Extension/Microsoft_Azure_HybridNetworking/Blade/GettingStartedTabs.ReactView",
+                        "WAU": 6387,
+                        "WeeksAgo": 3
+                    }
+                ]
+            },
+            "average_sessions_per_user": {
+                "query": "// Average Sessions per User (overall and by blade)\nlet bladeNames = dynamic([\n    \"Extension/Microsoft_Azure_HybridNetworking/Blade/GettingStartedTabs.ReactView\",\n    \"Extension/Microsoft_Azure_HybridNetworking/Blade/RelatedServices.ReactView\", \n    \"Extension/Microsoft_Azure_DNS/Blade/TrafficManagerCreate.ReactView\",\n    \"Extension/Microsoft_Azure_HybridNetworking/Blade/CreateBastionHostBlade\",\n    \"Extension/Microsoft_Azure_Security_Insights/Blade/OnboardingBlade\",\n    \"Extension/Microsoft_Azure_Monitoring/Blade/GettingStartedBladeViewModel\",\n    \"Extension/Microsoft_Azure_Security/Blade/OverviewBladeV3\",\n    \"Extension/Microsoft_Azure_DataProtection/Blade/BackupCenterOverviewBlade\",\n    \"Extension/Microsoft_Azure_Network/Blade/CreatePrivateEndpointBlade\",\n    \"Extension/Microsoft_Azure_RecoveryServices/Blade/CreateBladeFullScreen\"\n]);\nlet sessionData = ClientTelemetry\n| where PreciseTimeStamp >= ago(28d)\n| where action == \"BladeFullReady\"\n| where name in (bladeNames)\n| where userTypeHint == \"\" and requestUri startswith \"https://portal.\" and tenantId != \"72f988bf-86f1-41af-91ab-2d7cd011db47\"\n| summarize SessionsPerUser = dcount(sessionId) by userId, name;\n// Overall average sessions per user\nlet overallAvg = sessionData\n| summarize TotalUsers = dcount(userId), TotalSessions = sum(SessionsPerUser)\n| project Metric = \"Overall_Avg_Sessions_Per_User\", Value = round(todouble(TotalSessions) / todouble(TotalUsers), 2);\n// Average sessions per user by blade\nlet bladeAvg = sessionData\n| summarize TotalUsers = dcount(userId), TotalSessions = sum(SessionsPerUser) by name\n| project Metric = strcat(\"Avg_Sessions_Per_User_\", name), Value = round(todouble(TotalSessions) / todouble(TotalUsers), 2);\nunion overallAvg, bladeAvg",
+                "result": [
+                    {
+                        "Metric": "Overall_Avg_Sessions_Per_User",
+                        "Value": 2.8
+                    },
+                    {
+                        "Metric": "Avg_Sessions_Per_User_Extension/Microsoft_Azure_HybridNetworking/Blade/GettingStartedTabs.ReactView",
+                        "Value": 1.33
+                    },
+                    {
+                        "Metric": "Avg_Sessions_Per_User_Extension/Microsoft_Azure_Monitoring/Blade/GettingStartedBladeViewModel",
+                        "Value": 2.1
+                    },
+                    {
+                        "Metric": "Avg_Sessions_Per_User_Extension/Microsoft_Azure_Network/Blade/CreatePrivateEndpointBlade",
+                        "Value": 2.09
+                    },
+                    {
+                        "Metric": "Avg_Sessions_Per_User_Extension/Microsoft_Azure_Security/Blade/OverviewBladeV3",
+                        "Value": 2.9
+                    },
+                    {
+                        "Metric": "Avg_Sessions_Per_User_Extension/Microsoft_Azure_HybridNetworking/Blade/RelatedServices.ReactView",
+                        "Value": 1.08
+                    },
+                    {
+                        "Metric": "Avg_Sessions_Per_User_Extension/Microsoft_Azure_Security_Insights/Blade/OnboardingBlade",
+                        "Value": 1.45
+                    },
+                    {
+                        "Metric": "Avg_Sessions_Per_User_Extension/Microsoft_Azure_DataProtection/Blade/BackupCenterOverviewBlade",
+                        "Value": 14.75
+                    },
+                    {
+                        "Metric": "Avg_Sessions_Per_User_Extension/Microsoft_Azure_HybridNetworking/Blade/CreateBastionHostBlade",
+                        "Value": 1.56
+                    },
+                    {
+                        "Metric": "Avg_Sessions_Per_User_Extension/Microsoft_Azure_RecoveryServices/Blade/CreateBladeFullScreen",
+                        "Value": 1.44
+                    },
+                    {
+                        "Metric": "Avg_Sessions_Per_User_Extension/Microsoft_Azure_DNS/Blade/TrafficManagerCreate.ReactView",
+                        "Value": 1.42
+                    }
+                ]
+            },
+            "session_frequency": {
+                "query": "// Session Frequency: Average number of active days per user in 28d\nlet bladeNames = dynamic([\n    \"Extension/Microsoft_Azure_HybridNetworking/Blade/GettingStartedTabs.ReactView\",\n    \"Extension/Microsoft_Azure_HybridNetworking/Blade/RelatedServices.ReactView\", \n    \"Extension/Microsoft_Azure_DNS/Blade/TrafficManagerCreate.ReactView\",\n    \"Extension/Microsoft_Azure_HybridNetworking/Blade/CreateBastionHostBlade\",\n    \"Extension/Microsoft_Azure_Security_Insights/Blade/OnboardingBlade\",\n    \"Extension/Microsoft_Azure_Monitoring/Blade/GettingStartedBladeViewModel\",\n    \"Extension/Microsoft_Azure_Security/Blade/OverviewBladeV3\",\n    \"Extension/Microsoft_Azure_DataProtection/Blade/BackupCenterOverviewBlade\",\n    \"Extension/Microsoft_Azure_Network/Blade/CreatePrivateEndpointBlade\",\n    \"Extension/Microsoft_Azure_RecoveryServices/Blade/CreateBladeFullScreen\"\n]);\nlet activeDaysData = ClientTelemetry\n| where PreciseTimeStamp >= ago(28d)\n| where action == \"BladeFullReady\"\n| where name in (bladeNames)\n| where userTypeHint == \"\" and requestUri startswith \"https://portal.\" and tenantId != \"72f988bf-86f1-41af-91ab-2d7cd011db47\"\n| extend Day = bin(PreciseTimeStamp, 1d)\n| summarize ActiveDays = dcount(Day) by userId, name;\n// Overall average active days per user\nlet overallAvg = activeDaysData\n| summarize TotalUsers = dcount(userId), TotalActiveDays = sum(ActiveDays)\n| project Metric = \"Overall_Avg_Active_Days_Per_User\", Value = round(todouble(TotalActiveDays) / todouble(TotalUsers), 2);\n// Average active days per user by blade\nlet bladeAvg = activeDaysData\n| summarize TotalUsers = dcount(userId), TotalActiveDays = sum(ActiveDays) by name\n| project Metric = strcat(\"Avg_Active_Days_Per_User_\", name), Value = round(todouble(TotalActiveDays) / todouble(TotalUsers), 2);\nunion overallAvg, bladeAvg",
+                "result": [
+                    {
+                        "Metric": "Overall_Avg_Active_Days_Per_User",
+                        "Value": 2.02
+                    },
+                    {
+                        "Metric": "Avg_Active_Days_Per_User_Extension/Microsoft_Azure_Monitoring/Blade/GettingStartedBladeViewModel",
+                        "Value": 1.63
+                    },
+                    {
+                        "Metric": "Avg_Active_Days_Per_User_Extension/Microsoft_Azure_DNS/Blade/TrafficManagerCreate.ReactView",
+                        "Value": 1.24
+                    },
+                    {
+                        "Metric": "Avg_Active_Days_Per_User_Extension/Microsoft_Azure_Network/Blade/CreatePrivateEndpointBlade",
+                        "Value": 1.51
+                    },
+                    {
+                        "Metric": "Avg_Active_Days_Per_User_Extension/Microsoft_Azure_Security/Blade/OverviewBladeV3",
+                        "Value": 2.0
+                    },
+                    {
+                        "Metric": "Avg_Active_Days_Per_User_Extension/Microsoft_Azure_HybridNetworking/Blade/GettingStartedTabs.ReactView",
+                        "Value": 1.2
+                    },
+                    {
+                        "Metric": "Avg_Active_Days_Per_User_Extension/Microsoft_Azure_DataProtection/Blade/BackupCenterOverviewBlade",
+                        "Value": 4.32
+                    },
+                    {
+                        "Metric": "Avg_Active_Days_Per_User_Extension/Microsoft_Azure_HybridNetworking/Blade/CreateBastionHostBlade",
+                        "Value": 1.27
+                    },
+                    {
+                        "Metric": "Avg_Active_Days_Per_User_Extension/Microsoft_Azure_Security_Insights/Blade/OnboardingBlade",
+                        "Value": 1.18
+                    },
+                    {
+                        "Metric": "Avg_Active_Days_Per_User_Extension/Microsoft_Azure_HybridNetworking/Blade/RelatedServices.ReactView",
+                        "Value": 1.06
+                    },
+                    {
+                        "Metric": "Avg_Active_Days_Per_User_Extension/Microsoft_Azure_RecoveryServices/Blade/CreateBladeFullScreen",
+                        "Value": 1.2
+                    }
+                ]
+            },
+            "user_journey_sankey_data": {
+                "query": "// Co-occurrence frequency of blades used together in sessions\nlet bladeNames = dynamic([\n    \"Extension/Microsoft_Azure_HybridNetworking/Blade/GettingStartedTabs.ReactView\",\n    \"Extension/Microsoft_Azure_HybridNetworking/Blade/RelatedServices.ReactView\", \n    \"Extension/Microsoft_Azure_DNS/Blade/TrafficManagerCreate.ReactView\",\n    \"Extension/Microsoft_Azure_HybridNetworking/Blade/CreateBastionHostBlade\",\n    \"Extension/Microsoft_Azure_Security_Insights/Blade/OnboardingBlade\",\n    \"Extension/Microsoft_Azure_Monitoring/Blade/GettingStartedBladeViewModel\",\n    \"Extension/Microsoft_Azure_Security/Blade/OverviewBladeV3\",\n    \"Extension/Microsoft_Azure_DataProtection/Blade/BackupCenterOverviewBlade\",\n    \"Extension/Microsoft_Azure_Network/Blade/CreatePrivateEndpointBlade\",\n    \"Extension/Microsoft_Azure_RecoveryServices/Blade/CreateBladeFullScreen\"\n]);\n// Sessions with multiple different blades\nClientTelemetry\n| where PreciseTimeStamp >= ago(28d)\n| where action == \"BladeFullReady\"\n| where name in (bladeNames)\n| where userTypeHint == \"\" and requestUri startswith \"https://portal.\" and tenantId != \"72f988bf-86f1-41af-91ab-2d7cd011db47\"\n| summarize BladeSet = make_set(name) by sessionId\n| where array_length(BladeSet) > 1\n| mv-expand Blade1 = BladeSet to typeof(string)\n| mv-expand Blade2 = BladeSet to typeof(string)\n| where Blade1 != Blade2\n| where Blade1 < Blade2  // Remove duplicates by ensuring alphabetical order\n| summarize CooccurrenceCount = count() by Blade1, Blade2\n| where CooccurrenceCount >= 10\n| order by CooccurrenceCount desc\n| take 20",
+                "result": [
+                    {
+                        "Blade1": "Extension/Microsoft_Azure_HybridNetworking/Blade/GettingStartedTabs.ReactView",
+                        "Blade2": "Extension/Microsoft_Azure_Security/Blade/OverviewBladeV3",
+                        "CooccurrenceCount": 11600
+                    },
+                    {
+                        "Blade1": "Extension/Microsoft_Azure_Monitoring/Blade/GettingStartedBladeViewModel",
+                        "Blade2": "Extension/Microsoft_Azure_Security/Blade/OverviewBladeV3",
+                        "CooccurrenceCount": 10037
+                    },
+                    {
+                        "Blade1": "Extension/Microsoft_Azure_HybridNetworking/Blade/GettingStartedTabs.ReactView",
+                        "Blade2": "Extension/Microsoft_Azure_HybridNetworking/Blade/RelatedServices.ReactView",
+                        "CooccurrenceCount": 1470
+                    },
+                    {
+                        "Blade1": "Extension/Microsoft_Azure_Security/Blade/OverviewBladeV3",
+                        "Blade2": "Extension/Microsoft_Azure_Security_Insights/Blade/OnboardingBlade",
+                        "CooccurrenceCount": 1364
+                    },
+                    {
+                        "Blade1": "Extension/Microsoft_Azure_Network/Blade/CreatePrivateEndpointBlade",
+                        "Blade2": "Extension/Microsoft_Azure_Security/Blade/OverviewBladeV3",
+                        "CooccurrenceCount": 1335
+                    },
+                    {
+                        "Blade1": "Extension/Microsoft_Azure_HybridNetworking/Blade/CreateBastionHostBlade",
+                        "Blade2": "Extension/Microsoft_Azure_Security/Blade/OverviewBladeV3",
+                        "CooccurrenceCount": 892
+                    },
+                    {
+                        "Blade1": "Extension/Microsoft_Azure_Monitoring/Blade/GettingStartedBladeViewModel",
+                        "Blade2": "Extension/Microsoft_Azure_Network/Blade/CreatePrivateEndpointBlade",
+                        "CooccurrenceCount": 756
+                    },
+                    {
+                        "Blade1": "Extension/Microsoft_Azure_HybridNetworking/Blade/GettingStartedTabs.ReactView",
+                        "Blade2": "Extension/Microsoft_Azure_Monitoring/Blade/GettingStartedBladeViewModel",
+                        "CooccurrenceCount": 645
+                    },
+                    {
+                        "Blade1": "Extension/Microsoft_Azure_Network/Blade/CreatePrivateEndpointBlade",
+                        "Blade2": "Extension/Microsoft_Azure_RecoveryServices/Blade/CreateBladeFullScreen",
+                        "CooccurrenceCount": 524
+                    },
+                    {
+                        "Blade1": "Extension/Microsoft_Azure_DataProtection/Blade/BackupCenterOverviewBlade",
+                        "Blade2": "Extension/Microsoft_Azure_RecoveryServices/Blade/CreateBladeFullScreen",
+                        "CooccurrenceCount": 412
+                    }
+                ]
+            }
+        }
+    };
+}
